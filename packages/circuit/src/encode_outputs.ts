@@ -131,3 +131,46 @@ export async function computeNullifier(signature: Uint8Array): Promise<bigint> {
   const packed = packBytesNodash(signature, 64);
   return poseidon2Hash(packed);
 }
+
+// ===== Public-input layout =====
+//
+// `bin/main.nr` lays its public inputs out in the order shown below;
+// the four return-value Fields (PublicOutputs) sit at the tail. This
+// mapping lets downstream consumers (frontend prover UI, escrow
+// verifier, etc.) decode the structured outputs without duplicating
+// the offset arithmetic.
+
+const URL_FIELDS = 1 + CIRCUIT_DIMS.MAX_URL_LEN; // BoundedVec.len + storage
+const PARAM_PUBLIC_FIELDS =
+  32 + 32 + 32 + URL_FIELDS + 20 + 1 + 4 * 32;
+const IDX_ASIN = PARAM_PUBLIC_FIELDS;
+const IDX_GRAND_TOTAL = IDX_ASIN + 1;
+const IDX_ADDRESS_COMMITMENT = IDX_GRAND_TOTAL + 1;
+const IDX_NULLIFIER = IDX_ADDRESS_COMMITMENT + 1;
+export const PUBLIC_INPUTS_LENGTH = IDX_NULLIFIER + 1;
+
+export interface DecodedOutputs {
+  asin: string;          // 10-byte ASCII, decoded
+  grandTotalCents: bigint;
+  addressCommitment: bigint;
+  nullifier: bigint;
+}
+
+// Decode the four public outputs out of a `ProofData.publicInputs`
+// array (hex-string Fields). `len` is the ASCII length of the ASIN
+// (always 10 for Amazon).
+export function decodePublicOutputs(
+  publicInputs: readonly string[],
+): DecodedOutputs {
+  if (publicInputs.length !== PUBLIC_INPUTS_LENGTH) {
+    throw new Error(
+      `publicInputs length ${publicInputs.length} != expected ${PUBLIC_INPUTS_LENGTH}`,
+    );
+  }
+  return {
+    asin: fieldToAsciiString(publicInputs[IDX_ASIN], 10),
+    grandTotalCents: BigInt(publicInputs[IDX_GRAND_TOTAL]),
+    addressCommitment: BigInt(publicInputs[IDX_ADDRESS_COMMITMENT]),
+    nullifier: BigInt(publicInputs[IDX_NULLIFIER]),
+  };
+}

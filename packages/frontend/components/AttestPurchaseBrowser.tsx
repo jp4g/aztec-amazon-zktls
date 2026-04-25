@@ -2,6 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { getPrimus } from "@/lib/primus-client";
+import {
+  ProveAttestation,
+  type ProveAttestationProps,
+} from "./ProveAttestation";
 
 type Status = "idle" | "running" | "success" | "error";
 
@@ -486,6 +490,17 @@ export default function AttestPurchaseBrowser() {
           </button>
         </section>
       )}
+
+      {status === "success" && attestation !== null && rows ? (
+        <ProveAttestation
+          attestation={
+            attestation as ProveAttestationProps["attestation"]
+          }
+          plaintexts={Object.fromEntries(
+            rows.map((r): [string, string] => [r.key, r.plaintext]),
+          )}
+        />
+      ) : null}
 
       {attestation !== null && (
         <details>

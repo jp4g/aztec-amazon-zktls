@@ -25,6 +25,30 @@ All circuit logic lives in `lib`. The `bin` crate is a one-liner forwarder; down
 | `address_commitment` | `Field` | poseidon2 commitment over the four shipping-address lines.       |
 | `nullifier`          | `Field` | poseidon2 of the packed attestor signature bytes.                |
 
+## Public-input layout
+
+`bin/main.nr` and the proof's `publicInputs` array follow this exact layout. The index helpers in `src/encode_outputs.ts` (`PUBLIC_INPUTS_LENGTH`, `decodePublicOutputs`) operate on the same offsets — prefer those over hand-indexing.
+
+| Range          | Field                  | Field count |
+|----------------|------------------------|-------------|
+| `[0..32)`      | `public_key_x` bytes   | 32          |
+| `[32..64)`     | `public_key_y` bytes   | 32          |
+| `[64..96)`     | `hash` bytes           | 32          |
+| `[96..224)`    | `allowed_url.storage`  | 128 (`MAX_URL_LEN`) |
+| `[224..225)`   | `allowed_url.len`      | 1           |
+| `[225..245)`   | `recipient` bytes      | 20          |
+| `[245..246)`   | `timestamp`            | 1 (`u64`)   |
+| `[246..278)`   | `hashes.shipment_status` | 32        |
+| `[278..310)`   | `hashes.product_title` | 32          |
+| `[310..342)`   | `hashes.ship_to`       | 32          |
+| `[342..374)`   | `hashes.grand_total`   | 32          |
+| `[374..375)`   | `asin`                 | 1 (output)  |
+| `[375..376)`   | `grand_total`          | 1 (output)  |
+| `[376..377)`   | `address_commitment`   | 1 (output)  |
+| `[377..378)`   | `nullifier`            | 1 (output)  |
+
+Total: **378 public inputs**. Each entry is a Field (BN254). The four return-value Fields (`PublicOutputs`) are appended after the parameter-side public inputs and are what an escrow consumer would key on.
+
 ## Address commitment
 
 The shipping address comes from the `shipTo` field of the attestation, which is the outer-HTML of Amazon's `<ul>` block:

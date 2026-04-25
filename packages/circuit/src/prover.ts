@@ -2,6 +2,14 @@
 // UltraHonk backend alive across proofs so callers don't pay init cost per
 // call. bb.js 3.x split the backend into a long-lived `Barretenberg` API
 // instance plus a thin `UltraHonkBackend` wrapper that takes bytecode + api.
+//
+// Caller picks the runtime profile via `ProverInit`:
+//   - Browser: pass `threads` (e.g. navigator.hardwareConcurrency); bb.js
+//     auto-selects WasmWorker. The page must be cross-origin-isolated
+//     (COEP/COOP headers) for the worker pool to use SharedArrayBuffer.
+//   - Node:    pass `backend: BackendType.Wasm` to skip the default
+//     NativeUnixSocket path (which spawns a `bb` subprocess and races
+//     under vitest).
 
 import { Noir, type CompiledCircuit, type InputMap } from "@noir-lang/noir_js";
 import {
@@ -14,29 +22,36 @@ import type { CircuitInputs } from "./types.js";
 
 export interface ProverInit {
   circuit: CompiledCircuit;
+  // Number of threads for the bb.js worker pool. Ignored in Node when
+  // `backend` is set to Wasm. Defaults to 1 (single-threaded) when
+  // omitted.
+  threads?: number;
+  // Force a specific bb.js backend. In browsers, leave undefined (bb.js
+  // auto-picks WasmWorker). In Node tests, pass `BackendType.Wasm`.
+  backend?: BackendType;
 }
 
 export class AttestationProver {
-  private readonly circuit: CompiledCircuit;
+  private readonly init_opts: ProverInit;
   private noir: Noir | null = null;
   private api: Barretenberg | null = null;
   private backend: UltraHonkBackend | null = null;
 
   constructor(init: ProverInit) {
-    this.circuit = init.circuit;
+    this.init_opts = init;
   }
 
   async init(): Promise<void> {
     if (this.noir && this.backend && this.api) return;
-    this.noir = new Noir(this.circuit);
-    // Force the WASM backend: Barretenberg.new() defaults to NativeUnixSocket
-    // in Node, which spins up a `bb` subprocess and a UDS — we don't want
-    // that side-channel for a vitest run.
-    // `Barretenberg.new` already calls `initSRSChonk()` internally when an
-    // explicit Wasm backend is requested; calling it again here traps the
-    // WASM with an "already initialized" unreachable.
-    this.api = await Barretenberg.new({ backend: BackendType.Wasm });
-    this.backend = new UltraHonkBackend(this.circuit.bytecode, this.api);
+    this.noir = new Noir(this.init_opts.circuit);
+    const opts: { threads?: number; backend?: BackendType } = {};
+    if (this.init_opts.threads != null) opts.threads = this.init_opts.threads;
+    if (this.init_opts.backend != null) opts.backend = this.init_opts.backend;
+    // `Barretenberg.new` calls `initSRSChonk()` internally when an
+    // explicit Wasm/WasmWorker backend is selected; calling it again
+    // here traps the WASM with an "already initialized" unreachable.
+    this.api = await Barretenberg.new(opts);
+    this.backend = new UltraHonkBackend(this.init_opts.circuit.bytecode, this.api);
   }
 
   async execute(

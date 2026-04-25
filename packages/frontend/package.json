@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@amazon-zktls/circuit": "workspace:^",
     "@primuslabs/network-core-sdk": "^0.1.13",
     "@primuslabs/zktls-js-sdk": "^0.3.12",
     "ethers": "^5.8.0",

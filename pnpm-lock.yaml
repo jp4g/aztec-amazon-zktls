@@ -41,6 +41,9 @@ importers:
 
   packages/frontend:
     dependencies:
+      '@amazon-zktls/circuit':
+        specifier: workspace:^
+        version: link:../circuit
       '@primuslabs/network-core-sdk':
         specifier: ^0.1.13
         version: 0.1.13(@noble/hashes@2.2.0)(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)

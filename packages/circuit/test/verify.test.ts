@@ -10,6 +10,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { BackendType } from "@aztec/bb.js";
 import {
   AttestationProver,
   CIRCUIT_DIMS,
@@ -79,7 +80,9 @@ describe("amazon-zktls verify", () => {
 
   beforeAll(async () => {
     const circuit = await loadCircuit();
-    prover = new AttestationProver({ circuit });
+    // Force the WASM backend in vitest; the default (NativeUnixSocket)
+    // races with vitest's worker pool.
+    prover = new AttestationProver({ circuit, backend: BackendType.Wasm });
     await prover.init();
   });
 

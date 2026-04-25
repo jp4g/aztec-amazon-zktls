@@ -1,12 +1,17 @@
-# aztec-amazon-zktls
+# `@amazon-zktls/frontend`
 
-Next.js + TypeScript app that produces a Primus zkTLS attestation proving a
-specific Amazon order — shipment status, product title (with embedded ASIN),
-shipping address, and grand total — for the Amazon account whose session
-cookies are pasted into the form. The signed attestation JSON is the intended
-input to a Noir circuit (`zktls-verification-noir`'s
-`verify_attestation_hashing` flow); the circuit itself is **not** in this
-repo.
+Next.js + React app that drives the end-to-end zkTLS flow for an Amazon
+order:
+
+1. **Attest** — uses `@primuslabs/zktls-js-sdk` + the Primus Chrome
+   extension to notarize an Amazon order-summary page. Produces a
+   signed attestation JSON with sha256 digests of `shipmentStatus`,
+   `productTitle`, `shipTo`, `grandTotal`.
+2. **Prove** — runs the Noir circuit from
+   [`@amazon-zktls/circuit`](../circuit/) directly in the browser via
+   `@aztec/bb.js`'s WasmWorker backend. Produces a proof + four public
+   outputs the downstream escrow flow consumes: `asin`, `grand_total`
+   (cents), `address_commitment`, `nullifier`.
 
 ## How it works
 
@@ -43,13 +48,41 @@ and slice fields like the ASIN out of the outer-HTML byte string.
 ## Run
 
 ```bash
-cp .env.local.example .env.local   # fill in PRIMUS_* and the signer key
+cp .env.local.example .env.local   # fill in PRIMUS_* (appId/appSecret/templateId)
+# from the repo root
 pnpm install
-pnpm dev                            # http://localhost:3000
+pnpm --filter @amazon-zktls/circuit build:nr   # compile the Noir circuit once
+pnpm --filter @amazon-zktls/frontend dev       # http://localhost:3000
 ```
 
-Optional: pre-fill the form by setting the `NEXT_PUBLIC_AMAZON_*` vars in
-`.env.local` (also gitignored). The form leaves any blank field empty.
+Whenever you change Noir code under `packages/circuit/nr`, rerun
+`build:nr` and refresh the browser — the compiled bytecode JSON is
+imported directly into the bundle.
+
+## Cross-origin isolation (required for fast proving)
+
+Multi-threaded WASM inside the browser uses `SharedArrayBuffer`, which
+the platform only exposes when the page is *cross-origin-isolated*.
+This frontend's `next.config.ts` sets the two headers needed:
+
+```
+Cross-Origin-Embedder-Policy: require-corp
+Cross-Origin-Opener-Policy:   same-origin
+```
+
+You can verify isolation in DevTools → Application → Frames → top
+frame → "Cross-Origin Isolated: true". Without isolation,
+`window.crossOriginIsolated` is `false` and the prove component
+falls back to single-threaded WASM (much slower); the prover logs a
+warning either way.
+
+If you embed cross-origin sub-resources (CDN scripts, third-party
+images, etc.) they need to opt in with
+`Cross-Origin-Resource-Policy: cross-origin` or `crossorigin="anonymous"`
+attributes — otherwise the browser blocks them under COEP.
+
+The prove component picks `threads = navigator.hardwareConcurrency`
+when isolation is on, `1` otherwise.
 
 ## XPath dialect
 
@@ -85,8 +118,21 @@ plaintext. Slower handshake, more sites block it.
 
 ## Files
 
-- `app/api/primus/attest/route.ts` — full attest flow (init / submitTask /
-  attest / verifyAndPollTaskResult / pull `getPlainResponse`).
-- `components/AttestPurchase.tsx` — form + result panel + download button.
-- `scripts/test_xpaths.py` — local XPath smoke test.
-- `example-order.html` — fixture used by the smoke test.
+- `app/api/primus/sign/route.ts` — server-side `appSecret` signer for the
+  attestation request.
+- `components/AttestPurchaseBrowser.tsx` — orchestrates the
+  `@primuslabs/zktls-js-sdk` flow: build request, sign on the server,
+  hand off to the extension, verify, capture per-field outer-HTML.
+- `components/ProveAttestation.tsx` — runs the Noir circuit
+  end-to-end in-browser. Imports the compiled bytecode from
+  `@amazon-zktls/circuit/nr/target/amazon_zktls_bin.json` and the
+  parser/prover/decoders from `@amazon-zktls/circuit`.
+- `next.config.ts` — COEP/COOP headers, `transpilePackages` for bb.js
+  + noir_js, plus the `serverExternalPackages` carve-outs that keep
+  `network-core-sdk` / `ethers` out of the server bundle.
+
+## Out of scope
+
+- The Noir circuit itself lives under `packages/circuit`. See the
+  `README.md` there for the verifier shape, the address-commitment
+  spec, and the public-input layout.
