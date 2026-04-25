@@ -23,7 +23,7 @@ use crate::{
     MAX_SHIP_TO_LEN, MAX_NAME_LEN, MAX_STREET_LEN, MAX_CITY_STATE_ZIP_LEN,
     MAX_COUNTRY_LEN, ShipToHints,
 };
-use nodash::{pack_bytes, poseidon2};
+use crate::internal::{pack_bytes, poseidon2};
 
 global LI_OPEN_LEN: u32 = 37;
 global LI_CLOSE_LEN: u32 = 25;

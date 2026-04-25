@@ -1,0 +1,3 @@
+[workspace]
+members = ["attestor_key_oracle", "escrow"]
+default-member = "escrow"

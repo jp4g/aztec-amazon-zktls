@@ -25,6 +25,7 @@ use sha256::sha256_var;
 
 pub mod asin;
 pub mod grand_total;
+pub mod internal;
 pub mod nullifier;
 pub mod ship_to;
 pub mod status;

@@ -1,0 +1,40 @@
+{
+  "name": "@amazon-zktls/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./artifacts": "./src/artifacts/index.ts",
+    "./constants": "./src/constants.ts",
+    "./contract": "./src/contract.ts"
+  },
+  "scripts": {
+    "compile:contracts": "cd nr && PATH=\"$HOME/.aztec/current/bin:$PATH\" aztec compile",
+    "compile:token": "cd deps/aztec-standards && PATH=\"$HOME/.aztec/current/bin:$PATH\" aztec compile --package token_contract",
+    "compile": "pnpm compile:contracts && pnpm compile:token",
+    "codegen:contracts": "PATH=\"$HOME/.aztec/current/bin:$PATH\" aztec codegen nr/target --outdir src/artifacts/escrow -f && mv src/artifacts/escrow/AttestorKeyOracle.ts src/artifacts/oracle/AttestorKeyOracle.ts",
+    "codegen:token": "PATH=\"$HOME/.aztec/current/bin:$PATH\" aztec codegen deps/aztec-standards/target --outdir src/artifacts/token -f && rm -f src/artifacts/token/Dripper.ts src/artifacts/token/Escrow.ts src/artifacts/token/GenericProxy.ts src/artifacts/token/NFT.ts src/artifacts/token/TestLogic.ts src/artifacts/token/Vault.ts",
+    "codegen": "pnpm codegen:contracts && pnpm codegen:token",
+    "post-codegen": "tsx scripts/add_artifacts.ts",
+    "build": "pnpm compile && pnpm codegen && pnpm post-codegen",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@aztec/aztec.js": "catalog:",
+    "@aztec/accounts": "catalog:",
+    "@aztec/foundation": "catalog:",
+    "@aztec/stdlib": "catalog:",
+    "@aztec/wallets": "catalog:",
+    "@amazon-zktls/circuit": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.19.0",
+    "typescript": "^5",
+    "vitest": "^2.0.0"
+  }
+}

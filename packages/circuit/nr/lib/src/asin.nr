@@ -6,8 +6,8 @@
 // 10 bytes from `position + 4` and pack to a single Field with nodash.
 
 use crate::MAX_PRODUCT_TITLE_LEN;
+use crate::internal::pack_bytes;
 use string_search::{StringBody, StringBody1024, SubString, SubString32};
-use nodash::pack_bytes;
 
 pub global ASIN_BYTES: u32 = 10;
 

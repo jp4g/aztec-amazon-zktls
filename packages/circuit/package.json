@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build:nr": "cd nr && nargo compile --workspace",
+    "build:nr": "cd nr && PATH=\"$HOME/.aztec/current/bin:$PATH\" nargo compile --workspace",
     "build:ts": "tsc",
     "build": "pnpm build:nr && pnpm build:ts",
     "test": "vitest run",

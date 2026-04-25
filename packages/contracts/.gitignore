@@ -1,0 +1,10 @@
+node_modules/
+dist/
+nr/target/
+codegenCache.json
+src/artifacts/escrow/AmazonEscrow.json
+src/artifacts/escrow/AmazonEscrow.ts
+src/artifacts/oracle/AttestorKeyOracle.json
+src/artifacts/oracle/AttestorKeyOracle.ts
+src/artifacts/token/Token.json
+src/artifacts/token/Token.ts

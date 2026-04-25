@@ -6,7 +6,7 @@
 // Replay of the same attestation maps to the same nullifier and is
 // rejected by the consuming registry.
 
-use nodash::{pack_bytes, poseidon2};
+use crate::internal::{pack_bytes, poseidon2};
 
 pub fn compute(signature: [u8; 64]) -> Field {
     // 64 bytes -> 64/31 + 1 = 3 Fields.

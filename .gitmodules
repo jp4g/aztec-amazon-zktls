@@ -1,0 +1,3 @@
+[submodule "packages/contracts/deps/aztec-standards"]
+	path = packages/contracts/deps/aztec-standards
+	url = https://github.com/defi-wonderland/aztec-standards.git

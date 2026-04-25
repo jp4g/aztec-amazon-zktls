@@ -15,4 +15,6 @@ compiler_version = ">=1.0.0"
 [dependencies]
 sha256 = { tag = "v0.3.0", git = "https://github.com/noir-lang/sha256" }
 string_search = { tag = "v0.3.3", git = "https://github.com/noir-lang/noir_string_search" }
-nodash = { tag = "v0.45.0", git = "https://github.com/olehmisar/nodash" }
+# pinned to match aztec-nr v4.2.0-aztecnr-rc.2 so this lib can be embedded
+# inside an Aztec contract without poseidon-version conflicts.
+poseidon = { tag = "v0.2.3", git = "https://github.com/noir-lang/poseidon" }
