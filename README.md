@@ -33,9 +33,9 @@ packages/
 │               re-runs the circuit lib inline) + AttestorKeyOracle (admin-
 │               curated PublicImmutable map of allowed pubkey hashes).
 │
-└── frontend/   Next.js app. Drives the browser-side flow: collect order
-                cookies, attest via Primus, prove with bb.js, render the
-                public outputs ready for an on-chain fill.
+└── frontend/   Next.js app. Drives the browser-side flow: attest via
+                Primus, prove with bb.js, render the public outputs ready
+                for an on-chain fill.
 ```
 
 Each package has its own README with build/test specifics.
