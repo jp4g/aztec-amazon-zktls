@@ -1,13 +1,15 @@
-// End-to-end: load a real attestation fixture (with `_plaintexts` sidecar
+// End-to-end: load the attestation fixture (with `_plaintexts` sidecar
 // attached by AttestPurchaseBrowser's download), parse it into circuit
 // inputs, execute (witness generation catches constraint failures before
 // paying bb.js prove time), prove, verify.
 //
-// If the fixture pre-dates the sidecar, the tests skip with a note on how
-// to regenerate. We deliberately don't re-run the browser XPath extractor
-// at test time (jsdom's DOMParser doesn't byte-match libxml2's, which is
-// the only representation Primus' attestor hashed).
+// If the fixture is missing the sidecar, skipIf fires per test with a
+// console note on how to regenerate. We deliberately don't re-run the
+// browser XPath extractor at test time (jsdom's DOMParser doesn't
+// byte-match libxml2's, which is the only representation Primus'
+// attestor hashed).
 
+import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -21,34 +23,39 @@ import {
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURES = resolve(HERE, "fixtures");
-const ATT_PATH = resolve(FIXTURES, "attestation-1777082410431.json");
+const ATT_PATH = resolve(FIXTURES, "attestation-amazon.json");
 
-async function loadFixture(): Promise<{
-  att: PrimusAttestation;
-  plaintexts: Record<string, string> | null;
-}> {
+// Detect the sidecar synchronously at module load time — vitest evaluates
+// `skipIf` before `beforeAll`, so an async flag in beforeAll would always
+// read as false.
+const FIXTURE_HAS_PLAINTEXTS = (() => {
+  try {
+    const parsed = JSON.parse(readFileSync(ATT_PATH, "utf-8")) as PrimusAttestation;
+    return parsed._plaintexts !== undefined;
+  } catch {
+    return false;
+  }
+})();
+
+if (!FIXTURE_HAS_PLAINTEXTS) {
+  console.warn(
+    `[verify.test] fixture ${ATT_PATH} has no \`_plaintexts\` sidecar - ` +
+      `skipping prove/verify. Regenerate by running the frontend ` +
+      `(\`pnpm --filter @amazon-zktls/frontend dev\`), completing an attestation, ` +
+      `and clicking "Download attestation.json"; the new file ` +
+      `includes the plaintexts the Noir circuit needs as private inputs.`,
+  );
+}
+
+async function loadInputs() {
   const att = JSON.parse(await readFile(ATT_PATH, "utf-8")) as PrimusAttestation;
-  return { att, plaintexts: att._plaintexts ?? null };
+  return parseAttestation(att, att._plaintexts!);
 }
 
 describe("amazon-zktls verify", () => {
   let prover: AttestationProver;
-  let fixtureHasPlaintexts = false;
 
   beforeAll(async () => {
-    const { plaintexts } = await loadFixture();
-    fixtureHasPlaintexts = plaintexts !== null;
-    if (!fixtureHasPlaintexts) {
-      // Surface the skip reason once at the top of the test run so the user
-      // isn't chasing three identical "skipped" entries.
-      console.warn(
-        `[verify.test] fixture ${ATT_PATH} has no \`_plaintexts\` sidecar — ` +
-          `skipping prove/verify. Regenerate by running the frontend ` +
-          `(\`pnpm --filter @amazon-zktls/frontend dev\`), completing an attestation, ` +
-          `and clicking "Download attestation.json"; the new file ` +
-          `includes the plaintexts the Noir circuit needs as private inputs.`,
-      );
-    }
     const circuit = await loadCircuit();
     prover = new AttestationProver({ circuit });
     await prover.init();
@@ -58,11 +65,11 @@ describe("amazon-zktls verify", () => {
     await prover?.destroy();
   });
 
-  it.skipIf(() => !fixtureHasPlaintexts)(
+  it.skipIf(!FIXTURE_HAS_PLAINTEXTS)(
     "parses the attestation into circuit inputs",
     async () => {
-      const { att, plaintexts } = await loadFixture();
-      const inputs = parseAttestation(att, plaintexts!);
+      const att = JSON.parse(await readFile(ATT_PATH, "utf-8")) as PrimusAttestation;
+      const inputs = parseAttestation(att, att._plaintexts!);
       expect(inputs.public_key_x).toHaveLength(32);
       expect(inputs.public_key_y).toHaveLength(32);
       expect(inputs.signature).toHaveLength(64);
@@ -71,20 +78,18 @@ describe("amazon-zktls verify", () => {
     },
   );
 
-  it.skipIf(() => !fixtureHasPlaintexts)(
+  it.skipIf(!FIXTURE_HAS_PLAINTEXTS)(
     "executes the circuit (witness generation) without failing a constraint",
     async () => {
-      const { att, plaintexts } = await loadFixture();
-      const inputs = parseAttestation(att, plaintexts!);
+      const inputs = await loadInputs();
       await expect(prover.execute(inputs)).resolves.toBeDefined();
     },
   );
 
-  it.skipIf(() => !fixtureHasPlaintexts)(
+  it.skipIf(!FIXTURE_HAS_PLAINTEXTS)(
     "proves and verifies end-to-end",
     async () => {
-      const { att, plaintexts } = await loadFixture();
-      const inputs = parseAttestation(att, plaintexts!);
+      const inputs = await loadInputs();
       const proof = await prover.prove(inputs);
       expect(proof.proof).toBeInstanceOf(Uint8Array);
       expect(proof.publicInputs.length).toBeGreaterThan(0);

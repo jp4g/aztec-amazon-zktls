@@ -38,10 +38,9 @@ packages/circuit/dist/
 .DS_Store
 *.pem
 
-# downloaded attestation artifacts — user-specific data in Downloads; test
-# fixtures under packages/circuit/test/fixtures/ are excepted.
+# downloaded attestation artifacts — user-specific data, never committed
+# (including the local test fixture at packages/circuit/test/fixtures/).
 attestation-*.json
-!packages/circuit/test/fixtures/attestation-*.json
 
 # debug
 npm-debug.log*

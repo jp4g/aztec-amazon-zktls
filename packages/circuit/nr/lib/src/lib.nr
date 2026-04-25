@@ -25,7 +25,9 @@ pub global MAX_URL_LEN: u32 = 128;
 pub global MAX_SHIPMENT_STATUS_LEN: u32 = 256;
 pub global MAX_PRODUCT_TITLE_LEN: u32 = 1024;
 pub global MAX_SHIP_TO_LEN: u32 = 1024;
-pub global MAX_GRAND_TOTAL_LEN: u32 = 64;
+// grandTotal is wrapped in several <span> layers of Amazon styling, so
+// the outer HTML ends up ~90 bytes even though the visible text is "$x.xx".
+pub global MAX_GRAND_TOTAL_LEN: u32 = 128;
 
 // Private inputs: the actual outer-HTML strings the attestor hashed.
 pub struct Contents {

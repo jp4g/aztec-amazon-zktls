@@ -66,7 +66,7 @@ export const CIRCUIT_DIMS = {
   MAX_SHIPMENT_STATUS_LEN: 256,
   MAX_PRODUCT_TITLE_LEN: 1024,
   MAX_SHIP_TO_LEN: 1024,
-  MAX_GRAND_TOTAL_LEN: 64,
+  MAX_GRAND_TOTAL_LEN: 128,
 } as const;
 
 // Field names (Noir snake_case) mapped to the Primus SDK's camelCase keyName
