@@ -30,10 +30,13 @@ const nextConfig: NextConfig = {
     "ethers",
   ],
 
-  // bb.js spins up its own Web Worker pool and ships its own WASM. Tell Next
-  // to transpile the package directly from source instead of treating it as
-  // a pre-bundled black box (which breaks the worker URLs).
-  transpilePackages: ["@aztec/bb.js", "@noir-lang/noir_js"],
+  // bb.js exports a hand-built `dest/browser/` bundle via the `browser`
+  // condition in its package.json; that bundle picks `helpers/browser`
+  // (typeof-window-guarded) where the source tree picks `helpers/node`
+  // unconditionally. Don't `transpilePackages` it — that compiles from
+  // `src/` and drags in the Node-only helpers, which trip a runtime
+  // `ReferenceError: window is not defined` from inside the Web Worker
+  // during `Barretenberg.new()`.
 
   // Multi-threaded WASM via SharedArrayBuffer requires the page to be
   // cross-origin-isolated. Without these headers, bb.js falls back to the
