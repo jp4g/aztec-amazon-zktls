@@ -1,3 +1,9 @@
 [submodule "packages/contracts/deps/aztec-standards"]
 	path = packages/contracts/deps/aztec-standards
 	url = https://github.com/defi-wonderland/aztec-standards.git
+[submodule ".claude/skills-src/aztec-private-escrow-skills"]
+	path = .claude/skills-src/aztec-private-escrow-skills
+	url = https://github.com/aztec-pioneers/aztec-private-escrow-skills.git
+[submodule ".claude/skills-src/primus-skills"]
+	path = .claude/skills-src/primus-skills
+	url = https://github.com/primus-labs/skills.git
