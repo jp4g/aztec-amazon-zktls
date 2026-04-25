@@ -337,23 +337,6 @@ export default function AttestPurchaseBrowser() {
 
   return (
     <div className="attest">
-      <section className="row" style={{ gap: 8 }}>
-        <p style={{ margin: 0, fontSize: 13, color: "#444" }}>
-          Browser flow — uses{" "}
-          <a
-            href="https://chromewebstore.google.com/detail/primus/oeiomhmbaapihbilkfkhmlajkeegnjhe"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Primus Chrome extension
-          </a>{" "}
-          + Dev Hub template{" "}
-          <code>{TEMPLATE_ID || "(unset)"}</code>. Make sure the extension is
-          installed and you&apos;re logged into amazon.com in this browser
-          profile.
-        </p>
-      </section>
-
       <section className="row">
         <label>
           Order ID:{" "}
