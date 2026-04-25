@@ -1,6 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin Turbopack's project root to this package directory. In a pnpm
+  // monorepo Turbopack walks up `app/` looking for `next/package.json`,
+  // gets confused, and aborts with ENOENT on the (legitimate) `app/`
+  // directory. `process.cwd()` is the package dir when `next dev` is
+  // invoked via `pnpm --filter @amazon-zktls/frontend dev`.
+  // Pin Turbopack's root to the pnpm workspace root, two dirs up from
+  // `packages/frontend`. `next` lives at `<root>/node_modules/.pnpm/...`
+  // and the Turbopack/Rust resolver can't follow pnpm's symlink from
+  // `packages/frontend/node_modules/next` back to that real location.
+  // Without this we get a misleading "next/package.json not found from
+  // /packages/frontend/app" error at boot.
+  turbopack: {
+    // Resolve to an absolute path explicitly; relative segments leak
+    // through into Turbopack's error messages without being normalized.
+    root: require("node:path").resolve(process.cwd(), "..", ".."),
+  },
+
   // network-core-sdk loads native algorithm bindings via require() and bundles
   // a noisy graph of optional deps (ws, bufferutil, utf-8-validate). Mark it
   // external so Turbopack doesn't try to trace it into the server bundle.

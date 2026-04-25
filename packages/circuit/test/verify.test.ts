@@ -18,10 +18,10 @@ import {
   computeAddressCommitment,
   computeNullifier,
   fieldToAsciiString,
-  loadCircuit,
   parseAttestation,
   type PrimusAttestation,
 } from "../src/index.js";
+import { loadCircuit } from "../src/load.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURES = resolve(HERE, "fixtures");
