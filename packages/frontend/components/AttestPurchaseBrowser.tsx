@@ -307,7 +307,18 @@ export default function AttestPurchaseBrowser() {
 
   const handleDownload = useCallback(() => {
     if (!attestation) return;
-    const blob = new Blob([JSON.stringify(attestation, null, 2)], {
+    // Attach extracted plaintexts as a sidecar under `_plaintexts` so the
+    // downstream Noir test has everything it needs (private inputs come from
+    // here; public inputs from the attestation itself). `_` prefix signals
+    // "not part of the canonical Primus payload" — the attestation is still
+    // bit-identical to what Primus signed.
+    const payload = {
+      ...(attestation as Record<string, unknown>),
+      _plaintexts: rows
+        ? Object.fromEntries(rows.map((r) => [r.key, r.plaintext]))
+        : {},
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -318,7 +329,7 @@ export default function AttestPurchaseBrowser() {
     a.download = `attestation-${ts}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [attestation]);
+  }, [attestation, rows]);
 
   return (
     <div className="attest">

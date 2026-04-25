@@ -1,0 +1,28 @@
+{
+  "name": "@amazon-zktls/circuit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build:nr": "cd nr && nargo compile --workspace",
+    "build:ts": "tsc",
+    "build": "pnpm build:nr && pnpm build:ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@aztec/bb.js": "^0.82.0",
+    "@noir-lang/noir_js": "^1.0.0-beta.11",
+    "@noble/curves": "^1.9.0",
+    "@noble/hashes": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5",
+    "vitest": "^2.0.0",
+    "jsdom": "^24.0.0",
+    "tsx": "^4.19.0"
+  }
+}

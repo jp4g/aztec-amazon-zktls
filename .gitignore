@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,6 +17,19 @@
 # next.js
 /.next/
 /out/
+packages/frontend/.next/
+packages/frontend/out/
+
+# nargo
+**/target/
+**/*.acir
+**/Prover.toml
+
+# circuit build artifacts
+packages/circuit/dist/
+
+# bb.js / noir_js cache
+.bb-cache/
 
 # production
 /build
@@ -24,8 +38,10 @@
 .DS_Store
 *.pem
 
-# downloaded attestation artifacts (user-specific data, not source)
+# downloaded attestation artifacts — user-specific data in Downloads; test
+# fixtures under packages/circuit/test/fixtures/ are excepted.
 attestation-*.json
+!packages/circuit/test/fixtures/attestation-*.json
 
 # debug
 npm-debug.log*

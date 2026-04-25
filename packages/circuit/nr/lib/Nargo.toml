@@ -1,0 +1,16 @@
+[package]
+name = "amazon_zktls_lib"
+type = "lib"
+authors = [""]
+compiler_version = ">=1.0.0"
+
+# Direct implementation instead of depending on primus-labs' att_verifier_lib
+# (forked at jp4g/zktls-verification-noir). Upstream's URL-dispatch is
+# Brillig-based (an `unconstrained` prefix-search whose output feeds a
+# dynamic array index). Vanilla `nargo compile` rejects that pattern under
+# its brillig-subgraph soundness analyzer and no amount of dataflow
+# massaging at the call site seemed to convince it. Since we only need one
+# allowed URL prefix, the general dispatch machinery costs us more than
+# it's worth; we inline a direct constrained verifier here.
+[dependencies]
+sha256 = { tag = "v0.3.0", git = "https://github.com/noir-lang/sha256" }

@@ -1,0 +1,44 @@
+{
+  "recipient": "0x0000000000000000000000000000000000000000",
+  "request": {
+    "url": "https://www.amazon.com/gp/css/summary/print.html?orderID=114-4730966-4694657",
+    "header": "",
+    "method": "GET",
+    "body": ""
+  },
+  "reponseResolve": [
+    {
+      "keyName": "shipmentStatus",
+      "parseType": "",
+      "parsePath": "{\"type\":\"FIELD_ARITHMETIC\",\"op\":\"SHA256\",\"field\":\"//*[@id=\\\"shipment-top-row\\\"]/div[1]/div[1]/h4[1]?\"}"
+    },
+    {
+      "keyName": "productTitle",
+      "parseType": "",
+      "parsePath": "{\"type\":\"FIELD_ARITHMETIC\",\"op\":\"SHA256\",\"field\":\"//*[@id=\\\"orderDetails\\\"]/div[1]/div[3]/div[1]/div[1]/div[7]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/a[1]?\"}"
+    },
+    {
+      "keyName": "shipTo",
+      "parseType": "",
+      "parsePath": "{\"type\":\"FIELD_ARITHMETIC\",\"op\":\"SHA256\",\"field\":\"//*[@id=\\\"orderDetails\\\"]/div[1]/div[3]/div[1]/div[1]/div[6]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/ul[1]?\"}"
+    },
+    {
+      "keyName": "grandTotal",
+      "parseType": "",
+      "parsePath": "{\"type\":\"FIELD_ARITHMETIC\",\"op\":\"SHA256\",\"field\":\"//*[@id=\\\"od-subtotals\\\"]/div[1]/div[1]/ul[1]/li[6]/span[1]/div[1]/div[2]/span[1]?\"}"
+    }
+  ],
+  "data": "{\"productTitle\":\"8b5e920730f33b2285418a3782c8fed303aa7e2fa420f3df3e0361db4f405330\",\"grandTotal\":\"634ca4313523abd866990c5972ae9c9ccdef29a707655d231ddebf62b37489e8\",\"shipTo\":\"f3cd6eac1ccd6474cf5138b177d3e25dacb5c0d7dfda89f29c33180d12d51006\",\"shipmentStatus\":\"9483842d61d3fbb34a0abffc904b9ae62bff964a039710ed7f553272fde8affe\"}",
+  "attConditions": "[{\"op\":\"REVEAL_HEX_STRING\",\"field\":\"{\\\"type\\\":\\\"FIELD_ARITHMETIC\\\",\\\"op\\\":\\\"SHA256\\\",\\\"field\\\":\\\"//*[@id=\\\\\\\"shipment-top-row\\\\\\\"]/div[1]/div[1]/h4[1]?\\\"}\",\"reveal_id\":\"shipmentStatus\"},{\"op\":\"REVEAL_HEX_STRING\",\"field\":\"{\\\"type\\\":\\\"FIELD_ARITHMETIC\\\",\\\"op\\\":\\\"SHA256\\\",\\\"field\\\":\\\"//*[@id=\\\\\\\"orderDetails\\\\\\\"]/div[1]/div[3]/div[1]/div[1]/div[7]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/a[1]?\\\"}\",\"reveal_id\":\"productTitle\"},{\"op\":\"REVEAL_HEX_STRING\",\"field\":\"{\\\"type\\\":\\\"FIELD_ARITHMETIC\\\",\\\"op\\\":\\\"SHA256\\\",\\\"field\\\":\\\"//*[@id=\\\\\\\"orderDetails\\\\\\\"]/div[1]/div[3]/div[1]/div[1]/div[6]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/ul[1]?\\\"}\",\"reveal_id\":\"shipTo\"},{\"op\":\"REVEAL_HEX_STRING\",\"field\":\"{\\\"type\\\":\\\"FIELD_ARITHMETIC\\\",\\\"op\\\":\\\"SHA256\\\",\\\"field\\\":\\\"//*[@id=\\\\\\\"od-subtotals\\\\\\\"]/div[1]/div[1]/ul[1]/li[6]/span[1]/div[1]/div[2]/span[1]?\\\"}\",\"reveal_id\":\"grandTotal\"}]",
+  "timestamp": 1777081537594,
+  "additionParams": "{\"algorithmType\":\"proxytls\",\"launch_page\":\"https://www.amazon.com/gp/css/summary/print.html?orderID=114-4730966-4694657\"}",
+  "attestors": [
+    {
+      "attestorAddr": "0xdb736b13e2f522dbe18b2015d0291e4b193d8ef6",
+      "url": "https://primuslabs.xyz"
+    }
+  ],
+  "signatures": [
+    "0x7a436c154a3340f2e7264e71c6502f2cb7b1d086fd6687d710b2bfe67f1b608a2198e8bc45fe821a1305bb29233bb54eddd50a06a8e02a3fb80167c11501e25c1c"
+  ]
+}
